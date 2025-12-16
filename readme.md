@@ -100,7 +100,7 @@ The **intended and safest** way to install CmdMind.
 
 ```bash
 chmod +x setup_cmdmind.sh
-./setup_cmdmind.sh
+./setup_cmdmind.sh #Linux | Mac
 ```
 
 **What this script does (fully transparent):**
