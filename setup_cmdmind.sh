@@ -19,6 +19,19 @@ N='\033[0m'      # Reset text color to normal
 # Inform user that setup has started
 echo -e "${G}🚀 Starting cmdmind setup...${N}"
 
+#############################
+# 1. Banner
+#############################
+print_banner() {
+cat <<'EOF'
+╔════════════════════════════════════════╗
+║              🧠 cmdmind                ║ 
+║    AI-powered command generator        ║
+║          Installer v2.0                ║
+╚════════════════════════════════════════╝
+EOF
+}
+
 ########################
 # 1. Detect platform
 ########################
@@ -32,9 +45,37 @@ esac
 echo -e "${G}Platform detected: $PLATFORM${N}"
 
 ########################
-# 2. Verify dependencies
+# 2. Verify dependencies ,  Bash version Platform-specific dependencies
 ########################
 # Essential tools needed for setup
+
+if [[ "$PLATFORM" == "Mac" ]]; then
+    echo -e "${Y}Running macOS dependency installer...${N}"
+
+    if [[ ! -f "Mac/dependency.sh" ]]; then
+        echo -e "${R}Error: Mac/dependency.sh not found${N}"
+        exit 1
+    fi
+
+    chmod +x Mac/dependency.sh
+    Mac/dependency.sh
+
+else
+    echo -e "${G}Using native Linux dependencies${N}"
+
+    deps=(bash sed awk curl timeout)
+
+    for dep in "${deps[@]}"; do
+        if ! command -v "$dep" >/dev/null 2>&1; then
+            echo -e "${R}Error: Missing dependency $dep${N}"
+            exit 1
+        fi
+    done
+fi
+
+echo -e "${G}Dependency check completed${N}"
+
+
 deps=(bash sed awk curl)
 # Only Linux requires 'timeout'
 if [[ "$PLATFORM" == "Linux" ]]; then
@@ -164,14 +205,14 @@ fi
 
 # Add alias if not already present
 if [[ -n "$SHELL_RC" ]]; then
-    if ! grep -q "alias cmdmind=" "$SHELL_RC"; then
+    if ! grep -q "alias cmd=" "$SHELL_RC"; then
         # Fish shell syntax differs slightly
         if [[ "$SHELL_RC" == *"fish"* ]]; then
-            echo "alias cmdmind='$SCRIPT_TARGET'" >> "$SHELL_RC"
+            echo "alias cmd='$SCRIPT_TARGET'" >> "$SHELL_RC"
         else
-            echo "alias cmdmind='$SCRIPT_TARGET'" >> "$SHELL_RC"
+            echo "alias cmd='$SCRIPT_TARGET'" >> "$SHELL_RC"
         fi
-        echo -e "${G}Alias 'cmdmind' added to $SHELL_RC${N}"
+        echo -e "${G}Alias 'cmd' added to $SHELL_RC${N}"
         echo "Run: source $SHELL_RC to activate alias"
     fi
 fi
@@ -201,7 +242,8 @@ fi
 # 12. Final installation check
 ########################
 # Ensure cmdmind command works
-if command -v cmdmind >/dev/null 2>&1; then
+if command -v cmd
+ >/dev/null 2>&1; then
     echo -e "${G}✅ cmdmind installation complete!${N}"
     echo "Test with: cmdmind 'list files in ~/Documents'"
 else
